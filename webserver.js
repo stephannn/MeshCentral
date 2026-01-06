@@ -7967,9 +7967,9 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
             // Setup Strategy Options
             strategy.custom.scope = obj.common.convertStrArray(strategy.custom.scope, ' ')
             if (strategy.custom.scope.length > 1) {
-                strategy.options = Object.assign(strategy.options, { 'params': { 'scope': strategy.custom.scope } })
+                strategy.options.params = Object.assign(strategy.options.params || {}, { 'scope': strategy.custom.scope });
             } else {
-                strategy.options = Object.assign(strategy.options, { 'params': { 'scope': ['openid', 'profile', 'email'] } })
+                strategy.options.params = Object.assign(strategy.options.params || {}, { 'scope': ['openid', 'profile', 'email'] });
             }
             if (typeof strategy.groups == 'object') {
                 let groupScope = strategy.groups.scope || null
@@ -8020,10 +8020,19 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
             strategy.options = Object.assign(strategy.options, { 'client': client, sessionKey: 'oidc-' + domain.id });
             strategy.client = client.metadata
             strategy.obj.client = client
-			
-			if (preset == 'azure') {
-				strategy.options.params = strategy.options.params || {}
-				strategy.options.params.prompt = 'select_account';
+
+            if (preset == 'azure') {
+                // https://learn.microsoft.com/en-us/entra/identity-platform/v2-protocols-oidc
+                const allowedPrompts = ['login', 'none', 'consent', 'select_account'];
+
+                if(strategy?.custom?.prompt){
+                    if (allowedPrompts.includes(strategy?.custom?.prompt)) {
+                        strategy.options.params = strategy.options.params || {}
+                        strategy.options.params.prompt = strategy?.custom?.prompt;
+                    } else {
+                        parent.debug('verbose', 'OIDC: Invalid Scope: ' + allowedPrompts.includes(strategy?.custom?.prompt));
+                    }
+                }
 			}
 
             // Setup strategy and save configs for later

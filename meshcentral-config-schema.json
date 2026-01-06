@@ -3866,6 +3866,16 @@
                           "openid profile email groups"
                         ]
                       },
+                      "prompt": {
+                        "type": "string",
+                        "description": "Indicates the type of user interaction that is required for Azure.",
+                        "enum": [
+                          "login",
+                          "none",
+                          "consent",
+                          "select_account"
+                        ]
+                      },
                       "claims": {
                         "type": "object",
                         "description": "Custom claims to use.",
