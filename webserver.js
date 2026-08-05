@@ -9243,6 +9243,10 @@ module.exports.CreateWebServer = function (parent, db, args, certificates, doneF
                             } else {
                                 req.session.userid = user._id;
                                 req.session.ip = req.clientIp;
+                                if ((loginOptions != null) && (loginOptions.tokenName != null) && (loginOptions.tokenUser != null)) {
+                                    req.session.tokenUser = loginOptions.tokenUser;
+                                    req.session.tokenName = loginOptions.tokenName;
+                                }
                                 setSessionRandom(req);
                                 func(ws, req, domain, user);
                             }
